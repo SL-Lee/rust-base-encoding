@@ -37,10 +37,13 @@ pub fn decode(input: &[u8]) -> Result<Vec<u8>, Error> {
     let mut bits = String::new();
 
     for &byte in input.iter().filter(|&&byte| byte != 61) {
-        match CHARACTERS.iter().position(|&x| x == byte) {
-            Some(index) => bits.push_str(&format!("{:0>6b}", index)),
-            None => return Err(Error::new(ErrorKind::MalformedInput)),
-        }
+        bits.push_str(&format!(
+            "{:0>6b}",
+            CHARACTERS
+                .iter()
+                .position(|&x| x == byte)
+                .ok_or_else(|| Error::new(ErrorKind::MalformedInput))?
+        ));
     }
 
     while bits.len() % 8 != 0 {
