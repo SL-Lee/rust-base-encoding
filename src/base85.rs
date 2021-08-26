@@ -14,15 +14,15 @@ pub fn encode(input: &[u8]) -> Vec<u8> {
     let mut output = input
         .chunks_exact(4)
         .flat_map(|chunk| {
-            let mut number = u32::from_be_bytes(chunk.try_into().unwrap());
+            let mut value = u32::from_be_bytes(chunk.try_into().unwrap());
             let mut place_values = Vec::with_capacity(5);
 
-            while number >= 85 {
-                place_values.push((number % 85) as u8);
-                number /= 85;
+            while value >= 85 {
+                place_values.push((value % 85) as u8);
+                value /= 85;
             }
 
-            place_values.push(number as u8);
+            place_values.push(value as u8);
             place_values.reverse();
             place_values
         })
@@ -38,38 +38,34 @@ pub fn decode(input: &[u8]) -> Result<Vec<u8>, Error> {
         .iter()
         .any(|&character| !(33..=117).contains(&character))
     {
-        Err(Error::new(ErrorKind::MalformedInput))
-    } else {
-        let mut input = input.to_vec();
-        let mut padding_count = 0;
-
-        while input.len() % 5 != 0 {
-            input.push(117);
-            padding_count += 1;
-        }
-
-        let groups = input.chunks_exact(5);
-        let mut output = Vec::with_capacity(groups.len());
-
-        for group in groups {
-            let mut number = 0;
-
-            for (i, &character) in group.iter().enumerate() {
-                if let Some(n) = ((character - 33) as u32)
-                    .checked_mul(85u32.pow((5 - i - 1) as u32))
-                {
-                    number += n;
-                } else {
-                    return Err(Error::new(ErrorKind::MalformedInput));
-                }
-            }
-
-            output.extend(&number.to_be_bytes());
-        }
-
-        output.truncate(output.len() - padding_count);
-        Ok(output)
+        return Err(Error::new(ErrorKind::MalformedInput));
     }
+
+    let mut input = input.to_vec();
+    let mut padding_count = 0;
+
+    while input.len() % 5 != 0 {
+        input.push(117);
+        padding_count += 1;
+    }
+
+    let chunks = input.chunks_exact(5);
+    let mut output = Vec::with_capacity(chunks.len() * 4);
+
+    for chunk in chunks {
+        let mut value = 0;
+
+        for (i, &character) in chunk.iter().enumerate() {
+            value += ((character - 33) as u32)
+                .checked_mul(85u32.pow((5 - i - 1) as u32))
+                .ok_or_else(|| Error::new(ErrorKind::MalformedInput))?;
+        }
+
+        output.extend(&value.to_be_bytes());
+    }
+
+    output.truncate(output.len() - padding_count);
+    Ok(output)
 }
 
 #[cfg(test)]
