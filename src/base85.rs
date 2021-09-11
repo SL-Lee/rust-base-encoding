@@ -11,23 +11,17 @@ pub fn encode(input: &[u8]) -> Vec<u8> {
         padding_count += 1;
     }
 
-    let mut output = input
-        .chunks_exact(4)
-        .flat_map(|chunk| {
-            let mut value = u32::from_be_bytes(chunk.try_into().unwrap());
-            let mut place_values = Vec::with_capacity(5);
+    let chunks = input.chunks_exact(4);
+    let mut output = vec![0; chunks.len() * 5];
 
-            while value >= 85 {
-                place_values.push((value % 85) as u8);
-                value /= 85;
-            }
+    for (group_offset, chunk) in chunks.enumerate() {
+        let mut value = u32::from_be_bytes(chunk.try_into().unwrap());
 
-            place_values.push(value as u8);
-            place_values.reverse();
-            place_values
-        })
-        .map(|place_value| place_value + 33)
-        .collect::<Vec<u8>>();
+        for byte_offset in (0..5).rev() {
+            output[group_offset * 5 + byte_offset] = (value % 85) as u8 + 33;
+            value /= 85;
+        }
+    }
 
     output.truncate(output.len() - padding_count);
     output
