@@ -1,10 +1,10 @@
 use crate::error::{Error, ErrorKind};
 
 const CHARACTERS: [u8; 64] = [
-    65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
-    84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106,
-    107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121,
-    122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 43, 47,
+    0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 0x50,
+    0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66,
+    0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76,
+    0x77, 0x78, 0x79, 0x7a, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x2b, 0x2f,
 ];
 
 pub fn encode(input: &[u8]) -> Vec<u8> {
@@ -20,14 +20,11 @@ pub fn encode(input: &[u8]) -> Vec<u8> {
     let mut output = Vec::new();
 
     for i in 0..bits.len() / 6 {
-        output.push(
-            CHARACTERS
-                [usize::from_str_radix(&bits[i * 6..i * 6 + 6], 2).unwrap()],
-        );
+        output.push(CHARACTERS[usize::from_str_radix(&bits[i * 6..i * 6 + 6], 2).unwrap()]);
     }
 
     while output.len() % 4 != 0 {
-        output.push(61);
+        output.push(0x3d);
     }
 
     output
@@ -36,7 +33,7 @@ pub fn encode(input: &[u8]) -> Vec<u8> {
 pub fn decode(input: &[u8]) -> Result<Vec<u8>, Error> {
     let mut bits = String::new();
 
-    for &byte in input.iter().filter(|&&byte| byte != 61) {
+    for &byte in input.iter().filter(|&&byte| byte != 0x3d) {
         bits.push_str(&format!(
             "{:0>6b}",
             CHARACTERS
@@ -66,10 +63,7 @@ mod tests {
     #[test]
     fn base64_encode_test() {
         let input = "one two three 一二三".as_bytes();
-        assert_eq!(
-            "b25lIHR3byB0aHJlZSDkuIDkuozkuIk=".as_bytes(),
-            encode(input)
-        );
+        assert_eq!("b25lIHR3byB0aHJlZSDkuIDkuozkuIk=".as_bytes(), encode(input));
     }
 
     #[test]

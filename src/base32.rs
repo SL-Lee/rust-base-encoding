@@ -1,8 +1,8 @@
 use crate::error::{Error, ErrorKind};
 
 const CHARACTERS: [u8; 32] = [
-    65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
-    84, 85, 86, 87, 88, 89, 90, 50, 51, 52, 53, 54, 55,
+    0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 0x50,
+    0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
 ];
 
 pub fn encode(input: &[u8]) -> Vec<u8> {
@@ -18,14 +18,11 @@ pub fn encode(input: &[u8]) -> Vec<u8> {
     let mut output = Vec::new();
 
     for i in 0..bits.len() / 5 {
-        output.push(
-            CHARACTERS
-                [usize::from_str_radix(&bits[i * 5..i * 5 + 5], 2).unwrap()],
-        );
+        output.push(CHARACTERS[usize::from_str_radix(&bits[i * 5..i * 5 + 5], 2).unwrap()]);
     }
 
     while output.len() % 8 != 0 {
-        output.push(61);
+        output.push(0x3d);
     }
 
     output
@@ -34,7 +31,7 @@ pub fn encode(input: &[u8]) -> Vec<u8> {
 pub fn decode(input: &[u8]) -> Result<Vec<u8>, Error> {
     let mut bits = String::new();
 
-    for &byte in input.iter().filter(|&&byte| byte != 61) {
+    for &byte in input.iter().filter(|&&byte| byte != 0x3d) {
         bits.push_str(&format!(
             "{:0>5b}",
             CHARACTERS
