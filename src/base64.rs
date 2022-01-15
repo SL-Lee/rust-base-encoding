@@ -8,7 +8,7 @@ const CHARACTERS: [u8; 64] = [
 ];
 
 pub fn encode(input: &[u8]) -> Vec<u8> {
-    let mut bits = input.iter().map(|byte| format!("{:0>8b}", byte)).collect::<String>();
+    let mut bits = input.iter().map(|byte| format!("{byte:0>8b}")).collect::<String>();
 
     while bits.len() % 6 != 0 {
         bits.push('0');
@@ -32,8 +32,8 @@ pub fn decode(input: &[u8]) -> Result<Vec<u8>, Error> {
 
     for &byte in input.iter().filter(|&&byte| byte != 0x3d) {
         bits.push_str(&format!(
-            "{:0>6b}",
-            CHARACTERS
+            "{character_bits:0>6b}",
+            character_bits = CHARACTERS
                 .iter()
                 .position(|&x| x == byte)
                 .ok_or_else(|| Error::new(ErrorKind::MalformedInput))?
