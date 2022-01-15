@@ -6,10 +6,7 @@ const CHARACTERS: [u8; 32] = [
 ];
 
 pub fn encode(input: &[u8]) -> Vec<u8> {
-    let mut bits = input
-        .iter()
-        .map(|byte| format!("{:0>8b}", byte))
-        .collect::<String>();
+    let mut bits = input.iter().map(|byte| format!("{:0>8b}", byte)).collect::<String>();
 
     while bits.len() % 5 != 0 {
         bits.push('0');
@@ -61,10 +58,7 @@ mod tests {
     #[test]
     fn base32_encode_test() {
         let input = "one two three 一二三".as_bytes();
-        assert_eq!(
-            "N5XGKIDUO5XSA5DIOJSWKIHEXCAOJOUM4S4IS===".as_bytes(),
-            encode(input)
-        );
+        assert_eq!("N5XGKIDUO5XSA5DIOJSWKIHEXCAOJOUM4S4IS===".as_bytes(), encode(input));
     }
 
     #[test]

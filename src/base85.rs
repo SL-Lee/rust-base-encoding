@@ -28,10 +28,7 @@ pub fn encode(input: &[u8]) -> Vec<u8> {
 }
 
 pub fn decode(input: &[u8]) -> Result<Vec<u8>, Error> {
-    if input
-        .iter()
-        .any(|&character| !(33..=117).contains(&character))
-    {
+    if input.iter().any(|&character| !(33..=117).contains(&character)) {
         return Err(Error::new(ErrorKind::MalformedInput));
     }
 

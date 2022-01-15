@@ -8,10 +8,7 @@ const CHARACTERS: [u8; 64] = [
 ];
 
 pub fn encode(input: &[u8]) -> Vec<u8> {
-    let mut bits = input
-        .iter()
-        .map(|byte| format!("{:0>8b}", byte))
-        .collect::<String>();
+    let mut bits = input.iter().map(|byte| format!("{:0>8b}", byte)).collect::<String>();
 
     while bits.len() % 6 != 0 {
         bits.push('0');
